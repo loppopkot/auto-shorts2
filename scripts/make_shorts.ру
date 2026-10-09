@@ -1,0 +1,43 @@
+import argparse
+import subprocess
+from pathlib import Path
+
+def make_short(source, output, start, duration):
+    source = Path(source)
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+
+    if not source.is_file():
+        raise FileNotFoundError(f"Видео не найдено: {source}")
+
+    if not 1 <= duration <= 180:
+        raise ValueError("Длительность должна быть от 1 до 180 секунд")
+
+    command = [
+        "ffmpeg", "-y",
+        "-ss", str(start),
+        "-i", str(source),
+        "-t", str(duration),
+        "-vf",
+        "scale=1080:1920:force_original_aspect_ratio=increase,"
+        "crop=1080:1920",
+        "-c:v", "libx264",
+        "-preset", "veryfast",
+        "-crf", "23",
+        "-c:a", "aac",
+        "-movflags", "+faststart",
+        str(output),
+    ]
+
+    subprocess.run(command, check=True)
+    print(f"Готово: {output}")
+
+if name == "main":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", required=True)
+    parser.add_argument("--output", default="output/short.mp4")
+    parser.add_argument("--start", type=float, default=0)
+    parser.add_argument("--duration", type=int, default=30)
+    args = parser.parse_args()
+
+    make_short(args.input, args.output, args.start, args.duration)

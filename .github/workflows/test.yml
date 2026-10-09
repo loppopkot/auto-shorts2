@@ -9,28 +9,24 @@ permissions:
 jobs:
   create-short:
     runs-on: ubuntu-latest
-
     steps:
       
-name: Download project
+name: Checkout repository
       uses: actions/checkout@v4
 
       
 name: Install FFmpeg
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y ffmpeg
+      run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
       
 name: Create test video
       run: |
         mkdir -p input output
-        ffmpeg -f lavfi \-i testsrc2=size=1280x720:rate=30 \-t 10 -pix_fmt yuv420p input/test.mp4
+        ffmpeg -f lavfi -i testsrc2=size=1280x720:rate=30 -t 10 -pix_fmt yuv420p input/test.mp4
 
       
 name: Make vertical Short
-      run: |
-        python scripts/make_shorts.py \--input input/test.mp4 \--output output/test-short.mp4 \--duration 10
+      run: python scripts/make_shorts.py --input input/test.mp4 --output output/test-short.mp4 --duration 10
 
       
 name: Save result

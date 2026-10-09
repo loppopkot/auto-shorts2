@@ -1,0 +1,41 @@
+name: Test Shorts Creator
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  create-short:
+    runs-on: ubuntu-latest
+
+    steps:
+      
+name: Download project
+      uses: actions/checkout@v4
+
+      
+name: Install FFmpeg
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
+
+      
+name: Create test video
+      run: |
+        mkdir -p input output
+        ffmpeg -f lavfi \-i testsrc2=size=1280x720:rate=30 \-t 10 -pix_fmt yuv420p input/test.mp4
+
+      
+name: Make vertical Short
+      run: |
+        python scripts/make_shorts.py \--input input/test.mp4 \--output output/test-short.mp4 \--duration 10
+
+      
+name: Save result
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-short
+        path: output/test-short.mp4
+        retention-days: 1
